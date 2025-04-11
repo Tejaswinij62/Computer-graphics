@@ -1,0 +1,3807 @@
+/*
+ * GLUT Shapes Demo
+ *
+ * Written by Nigel Stewart November 2003
+ *
+ * This program is test harness for the sphere, cone
+ * and torus shapes in GLUT.
+ *
+ * Spinning wireframe and smooth shaded shapes are
+ * displayed until the ESC or q key is pressed.  The
+ * number of geometry stacks and slices can be adjusted
+ * using the + and - keys.
+ */
+
+#ifdef __APPLE__
+#include <GLUT/glut.h>
+#else
+#include <GL/glut.h>
+#endif
+#include<stdio.h>
+#include <stdlib.h>
+#include<math.h>
+#include<mmsystem.h>
+#define PI 3.141592653589
+#include<unistd.h>
+float theta;
+int l;
+float xr=0,yr=0;//to control object movement
+GLint b=300;
+float counter=800;
+float posX =0, posY =0, posZ =0;
+int done=0;
+void myinit()
+{
+glClearColor(0.596,0.984,0.596,0);//palegreen);
+glColor3f(0.0,0.0,1.0);
+glPointSize(2.0);
+glMatrixMode(GL_PROJECTION);
+glLoadIdentity();
+gluOrtho2D(0.0,1100.0,0.0,700.0);
+
+
+}
+
+void draw_pixel(GLint cx, GLint cy)
+{
+
+	glBegin(GL_POINTS);
+		glVertex2i(cx,cy);
+	glEnd();
+}
+
+void plotpixels(GLint h,GLint k, GLint x,GLint y)
+{
+	draw_pixel(x+h,y+k);
+	draw_pixel(-x+h,y+k);
+	draw_pixel(x+h,-y+k);
+	draw_pixel(-x+h,-y+k);
+	draw_pixel(y+h,x+k);
+	draw_pixel(-y+h,x+k);
+	draw_pixel(y+h,-x+k);
+	draw_pixel(-y+h,-x+k);
+}
+
+void draw_circle(GLint h, GLint k, GLint r)
+{
+	GLint d=1-r, x=0, y=r;
+	while(y>x)
+	{
+		plotpixels(h,k,x,y);
+		if(d<0) d+=2*x+3;
+		else
+		{
+			d+=2*(x-y)+5;
+			--y;
+		}
+		++x;
+	}
+	plotpixels(h,k,x,y);
+}
+
+
+GLfloat tp3=0;
+
+void woman()
+{
+
+    glColor3f(1.0,0.078,0.576);
+    glBegin(GL_POLYGON);
+    glVertex2f(100+xr,180+yr);
+    glVertex2f(150+xr,180+yr);
+    glVertex2f(150+xr,160+yr);
+    glVertex2f(100+xr,160+yr);
+    glEnd();
+    //waist
+    glColor3f(1.0,0.894,0.710);
+    glBegin(GL_POLYGON);
+    glVertex2f(105+xr,160+yr);
+    glVertex2f(145+xr,160+yr);
+    glVertex2f(145+xr,150+yr);
+    glVertex2f(105+xr,150+yr);
+    glEnd();
+    //skirt
+    glColor3f(0.0,0.808,0.820);
+    glBegin(GL_POLYGON);
+    glVertex2f(100+xr,150+yr);
+    glVertex2f(150+xr,150+yr);
+    glVertex2f(170+xr,100+yr);
+    glVertex2f(80+xr,100+yr);
+    glEnd();
+
+    //neck
+    glColor3f(1.0,0.894,0.710);
+    glBegin(GL_POLYGON);
+    glVertex2f(117+xr,180+yr);
+    glVertex2f(133+xr,180+yr);
+    glVertex2f(133+xr,185+yr);
+    glVertex2f(117+xr,185+yr);
+
+    glEnd();
+    //face
+
+    glColor3f(1.0,0.894,0.710);
+glBegin(GL_POLYGON);
+    for(int i=0;i<360;i++)
+    {
+        theta=i*3.142/180;
+        glVertex2f(125+15*cos(theta)+xr,198+15*sin(theta)+yr);
+    }
+
+    glEnd();
+      //eyes
+glColor3f(0.0,0.0,0.0);
+glPointSize(2);
+glBegin(GL_POINTS);
+{
+    glVertex2f(120+xr,200+yr);
+
+    glEnd();
+}
+glBegin(GL_POINTS);
+{
+    glVertex2f(130+xr,200+yr);
+
+    glEnd();
+}
+//hand
+glColor3f(1.0,0.9,0.9);
+  glBegin(GL_POLYGON);
+  glVertex2f(100+xr,180+yr) ;
+  glVertex2f(110+xr,170+yr);
+  glVertex2f(110+xr,160+yr);
+  glVertex2f(100+xr,170+yr);
+  glEnd();
+   glBegin(GL_POLYGON);
+ glVertex2f(150+xr,180+yr) ;
+  glVertex2f(140+xr,170+yr);
+  glVertex2f(140+xr,160+yr);
+  glVertex2f(150+xr,170+yr);
+  glEnd();
+  //plate
+ glColor3f(0.863,0.863,0.863);//gainsboro
+       glBegin(GL_POLYGON);
+       for(int i=0;i<360;i++)
+       {
+        theta=i*3.142/180;
+        glVertex2f(125+20*cos(theta)+xr,160+13*sin(theta)+yr);
+       }
+       glEnd();
+//plate items
+      glColor3f(0,0.392,0);
+      glBegin(GL_LINES);
+      glVertex2f(110+xr,150+yr);
+      glVertex2f(140+xr,150+yr);
+      glEnd();
+      glBegin(GL_LINES);
+      glVertex2f(110+xr,151+yr);
+      glVertex2f(140+xr,151+yr);
+      glEnd();
+      glBegin(GL_LINES);
+      glVertex2f(110+xr,152+yr);
+      glVertex2f(140+xr,152+yr);
+      glEnd();
+
+      //jaggery
+    glColor3f(0.855,0.647,0.125);//goldenrod
+    glPointSize(10);
+    glBegin(GL_POINTS);
+      glVertex2f(110+xr,165+yr);
+      glEnd();
+     glBegin(GL_POINTS);
+      glVertex2f(122+xr,160+yr);
+      glEnd();
+      glBegin(GL_POINTS);
+      glVertex2f(134+xr,165+yr);
+      glEnd();
+      //legs
+      glColor3f(1.0,0.894,0.710);
+glBegin(GL_POLYGON);
+glVertex2f(95+xr,100+yr);
+glVertex2f(110+xr,100+yr);
+glVertex2f(110+xr,90+yr);
+glVertex2f(95+xr,90+yr);
+glEnd();
+glColor3f(1.0,0.894,0.710);
+glBegin(GL_POLYGON);
+glVertex2f(155+xr,100+yr);
+glVertex2f(140+xr,100+yr);
+glVertex2f(140+xr,90+yr);
+glVertex2f(155+xr,90+yr);
+glEnd();
+
+
+glFlush();
+}void human()
+{
+
+//shirt
+glColor3f(0.0,0.9,0.9);
+glBegin(GL_POLYGON);
+glVertex2f(410,170);
+glVertex2f(440,170);
+glVertex2f(450,140);
+glVertex2f(400,140);
+glEnd();
+//pant
+glColor3f(1.0,0.0,0.0);
+glBegin(GL_POLYGON);
+glVertex2f(400,140);
+glVertex2f(425,140);
+glVertex2f(420,120);
+glVertex2f(400,120);
+glEnd();
+
+glColor3f(1.0,0.0,0.0);
+glBegin(GL_POLYGON);
+glVertex2f(425,140);
+glVertex2f(450,140);
+glVertex2f(450,120);
+glVertex2f(430,120);
+glEnd();
+//leg
+ glColor3f(1.0,0.894,0.710);
+glBegin(GL_POLYGON);
+glVertex2f(405,120);
+glVertex2f(415,120);
+glVertex2f(415,110);
+glVertex2f(405,110);
+glEnd();
+glColor3f(1.0,0.894,0.710);
+glBegin(GL_POLYGON);
+glVertex2f(435,120);
+glVertex2f(445,120);
+glVertex2f(445,110);
+glVertex2f(435,110);
+glEnd();
+//shirthand
+ glColor3f(0.0,0.9,0.9);
+  glBegin(GL_POLYGON);
+  glVertex2f(410,170);
+  glVertex2f(395,155) ;
+  glVertex2f(395,145);
+  glVertex2f(407,155) ;
+  glEnd();
+  glBegin(GL_POLYGON);
+  glVertex2f(440,170);
+  glVertex2f(455,155) ;
+  glVertex2f(455,145);
+  glVertex2f(443,155) ;
+  glEnd();
+
+//head
+ glColor3f(1.0,0.894,0.710);
+glBegin(GL_POLYGON);
+    for(int i=0;i<360;i++)
+    {
+        theta=i*3.142/180;
+        glVertex2f(425+15*cos(theta),185+15*sin(theta));
+    }
+
+    glEnd();
+
+glFlush();
+
+}
+void woman2()
+{
+   /* glLoadIdentity();
+   counter=counter-0.03;
+   glTranslated(counter+xr,150+yr,0.0);*/
+
+    //top
+    glColor3f(1.0,0.078,0.576);
+    glBegin(GL_POLYGON);
+    glVertex2f(300,150);
+    glVertex2f(350,140);
+    glVertex2f(350,180);
+    glVertex2f(300,170);
+    glEnd();
+    //waist
+    glColor3f(1.0,0.894,0.710);
+    glBegin(GL_POLYGON);
+    glVertex2f(305,150);
+    glVertex2f(345,160);
+    glVertex2f(345,150);
+    glVertex2f(305,140);
+    glEnd();
+    //skirt
+    glColor3f(0.0,0.808,0.820);
+    glBegin(GL_POLYGON);
+    glVertex2f(300,140);
+    glVertex2f(350,150);
+    glVertex2f(350,100);
+    glVertex2f(300,90);
+    glEnd();
+    //sare
+    glColor3f(0.0,0.0,0.710);
+    glBegin(GL_POLYGON);
+    glVertex2f(350,150);
+    glVertex2f(350,160);
+    glVertex2f(300,170);
+    glVertex2f(300,160);
+    glEnd();
+    glColor3f(0.0,0.0,0.710);
+    glBegin(GL_POLYGON);
+    glVertex2f(300,170);
+    glVertex2f(280,130);
+    glVertex2f(290,130);
+    glVertex2f(300,155);
+    glEnd();
+    //face
+
+    glColor3f(1.0,0.894,0.710);
+glBegin(GL_POLYGON);
+    for(int i=0;i<360;i++)
+    {
+        theta=i*3.142/180;
+        glVertex2f(325+15*cos(theta),190+15*sin(theta));
+    }
+
+    glEnd();
+      //eyes
+glColor3f(0.0,0.0,0.0);
+glPointSize(2);
+glBegin(GL_POINTS);
+{
+    glVertex2f(320,190);
+
+    glEnd();
+}
+glBegin(GL_POINTS);
+{
+    glVertex2f(330,190);
+
+    glEnd();
+}
+//hand
+glColor3f(1.0,0.9,0.9);
+  glBegin(GL_POLYGON);
+  glVertex2f(300,170) ;
+  glVertex2f(310,160);
+  glVertex2f(310,150);
+  glVertex2f(300,160);
+  glEnd();
+   glBegin(GL_POLYGON);
+ glVertex2f(350,180) ;
+  glVertex2f(340,170);
+  glVertex2f(340,160);
+  glVertex2f(350,170);
+  glEnd();
+  //plate
+ glColor3f(0.863,0.863,0.863);//gainsboro
+       glBegin(GL_POLYGON);
+       for(int i=0;i<360;i++)
+       {
+        theta=i*3.142/180;
+        glVertex2f(325+20*cos(theta),160+13*sin(theta));
+       }
+       glEnd();
+  glColor3f(0.804,0.361,0.361);
+       glBegin(GL_POLYGON);
+       for(int i=0;i<360;i++)
+       {
+        theta=i*3.142/180;
+        glVertex2f(320+7*cos(theta),150+7*sin(theta));
+       }
+       glEnd();
+        glColor3f(0.863,0.863,0.863);
+       glBegin(GL_POLYGON);
+       for(int i=0;i<360;i++)
+       {
+        theta=i*3.142/180;
+        glVertex2f(320+7*cos(theta),157+7*sin(theta));
+       }
+       glEnd();
+glBegin(GL_TRIANGLES);
+glColor3f(1,0.2,0);
+glVertex2f(320,157);
+glVertex2f(315,152);
+glVertex2f(325,152);
+glEnd();
+
+glFlush();
+}
+ void torana(int x,int y){
+ glPushMatrix();
+ glTranslatef(x,y,0);
+  int a=0;
+    for(int i=0;i<10;i++)
+    {
+        glColor3f(0,0.5,0);
+        glBegin(GL_POLYGON);
+        glVertex2i(500+a,250);
+        glVertex2i(510+a,250);
+        glVertex2i(510+a,240);
+        glVertex2i(505+a,235);
+        glVertex2i(500+a,240);
+        a=a+13;
+        glEnd();
+    }
+
+    glPopMatrix();
+
+
+ }
+ void torana2(int x,int y){
+ glPushMatrix();
+ glTranslatef(x,y,0);
+  int a=0;
+    for(int i=0;i<4;i++)
+    {
+        glColor3f(0,0.5,0);
+        glBegin(GL_POLYGON);
+        glVertex2i(500+a,250);
+        glVertex2i(510+a,250);
+        glVertex2i(510+a,245);
+        glVertex2i(505+a,240);
+        glVertex2i(500+a,245);
+        a=a+13;
+        glEnd();
+    }
+
+    glPopMatrix();
+
+
+ }
+
+
+void house1ugadi()
+{
+     //roof
+    glColor3f(0.502,0.0,0.0);//maroon
+    glBegin(GL_POLYGON);
+    glVertex2i(550,350);
+    glVertex2i(900,350);
+    glVertex2i(950,250);
+    glVertex2i(600,250);
+    glEnd();
+    //sidetriangle
+   glColor3f(0.647,0.165,0.165);//maroon
+    glBegin(GL_TRIANGLES);
+    glVertex2i(550,350);
+    glVertex2i(500,250);
+    glVertex2i(600,250);
+    glEnd();
+
+    //doorwall
+    glColor3f(0.627,0.322,0.176);//saddle brown
+    glBegin(GL_POLYGON);
+    glVertex2i(500,250);
+    glVertex2i(600,250);
+    glVertex2i(600,100);
+    glVertex2i(500,100);
+    glEnd();
+     //torana
+   torana(0,0);
+       //windowwall
+    glColor3f(0.545,0.271,0.075);//saddle brown
+    glBegin(GL_POLYGON);
+    glVertex2i(600,250);
+    glVertex2i(950,250);
+    glVertex2i(950,100);
+    glVertex2i(600,100);
+    glEnd();
+
+
+    //door
+    glColor3f(0.957,0.643,0.376);//sandybrown
+    glBegin(GL_POLYGON);
+    glVertex2i(525,175);
+    glVertex2i(575,175);
+    glVertex2i(575,100);
+    glVertex2i(525,100);
+
+    glEnd();
+    //window
+    glColor3f(0.529,0.808,0.980);//light sky blue;
+    glBegin(GL_POLYGON);
+    glVertex2i(700,200);
+    glVertex2i(750,200);
+    glVertex2i(750,150);
+    glVertex2i(700,150);
+    glEnd();
+    //window bars
+    glColor3f(1,1,1);
+    glBegin(GL_LINES);
+    glVertex2i(725,200);
+    glVertex2i(725,150);
+    glEnd();
+    glColor3f(1,1,1);
+    glBegin(GL_LINES);
+    glVertex2i(700,175);
+    glVertex2i(750,175);
+    glEnd();
+
+   glColor3f(0.529,0.808,0.980);//light sky blue;
+    glBegin(GL_POLYGON);
+    glVertex2i(850,200);
+    glVertex2i(900,200);
+    glVertex2i(900,150);
+    glVertex2i(850,150);
+    glEnd();
+     //window bars
+    glColor3f(1,1,1);
+    glBegin(GL_LINES);
+    glVertex2i(875,200);
+    glVertex2i(875,150);
+    glEnd();
+    glColor3f(1,1,1);
+    glBegin(GL_LINES);
+    glVertex2i(850,175);
+    glVertex2i(900,175);
+    glEnd();
+    //Rangoli
+    glColor3f(1,0.753,0.706);//light pink
+    glBegin(GL_TRIANGLES);
+    glVertex2i(470,70);
+    glVertex2i(450,55);
+    glVertex2i(490,55);
+    glEnd();
+    glColor3f(0.576,0.439,0.859);//mediumpurple
+    glBegin(GL_TRIANGLES);
+    glVertex2i(470,50);
+    glVertex2i(450,65);
+    glVertex2i(490,65);
+    glEnd();
+    //flower
+    for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,230,l);
+      }
+
+      for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,220,l);
+      }
+       for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,210,l);
+      }
+       for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,200,l);
+      }
+
+       for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,190,l);
+      }
+   for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,180,l);
+      }
+         for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,170,l);
+      }
+         for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,160,l);
+      }
+         for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,150,l);
+      }
+        for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,140,l);
+      }
+        for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(595,130,l);}
+ //f2
+       for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,230,l);
+      }
+
+      for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,220,l);
+      }
+       for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,210,l);
+      }
+       for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,200,l);
+      }
+
+       for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,190,l);
+      }
+   for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,180,l);
+      }
+         for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,170,l);
+      }
+         for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,160,l);
+      }
+         for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,150,l);
+      }
+        for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,140,l);
+      }
+        for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(505,130,l);
+      }
+
+}
+
+void sun()
+{
+     glColor3f(1.0,0.9,0.0);
+    glBegin(GL_POLYGON);
+    for(int i=0;i<360;i++)
+    {
+        theta=i*3.142/180;
+        glVertex2f(550+50*cos(theta),540+50*sin(theta));
+    }
+
+    glEnd();
+}
+ void kalasa()
+ {
+
+	for(l=0;l<=45;l++)
+{
+		glColor3f(0.722,0.525,0.043);
+		draw_circle(375,200,l);
+}
+	for(l=0;l<=10;l++)
+{
+		glColor3f(0.0,0.8,0.0);
+		draw_circle(350,235,l);
+}
+	for(l=0;l<=10;l++)
+{
+		glColor3f(0.0,0.8,0.0);
+		draw_circle(400,235,l);
+}
+//kalsa design
+glColor3f(1,1,1);
+ glPointSize(5);
+    glBegin(GL_POINTS);
+      glVertex2f(335,190);
+      glEnd();
+     glBegin(GL_POINTS);
+      glVertex2f(345,190);
+      glEnd();
+      glBegin(GL_POINTS);
+      glVertex2f(355,190);
+      glEnd();
+      glBegin(GL_POINTS);
+      glVertex2f(365,190);
+      glEnd();
+      glBegin(GL_POINTS);
+      glVertex2f(375,190);
+      glEnd();
+      glBegin(GL_POINTS);
+      glVertex2f(385,190);
+      glEnd();
+      glBegin(GL_POINTS);
+      glVertex2f(395,190);
+      glEnd();
+      glBegin(GL_POINTS);
+      glVertex2f(405,190);
+      glEnd();
+      glBegin(GL_POINTS);
+      glVertex2f(415,190);
+      glEnd();
+	for(l=0;l<=2;l++)
+{
+		glColor3f(0.545,0.0,0.0);
+		draw_circle(345,175,l);
+}
+	for(l=0;l<=2;l++)
+{
+		glColor3f(0.545,0.0,0.0);
+		draw_circle(365,175,l);
+}
+	for(l=0;l<=2;l++)
+{
+		glColor3f(0.545,0.0,0.0);
+		draw_circle(385,175,l);
+}
+	for(l=0;l<=2;l++)
+{
+		glColor3f(0.545,0.0,0.0);
+		draw_circle(405,175,l);
+}
+//swastik
+glColor3f(1,0.843,0);//gold
+glBegin(GL_LINES);
+glVertex2f(375,220);
+glVertex2f(375,200);
+glEnd();
+glBegin(GL_LINES);
+glVertex2f(375,220);
+glVertex2f(385,220);
+glEnd();
+glBegin(GL_LINES);
+glVertex2f(375,200);
+glVertex2f(365,200);
+glEnd();
+glBegin(GL_LINES);
+glVertex2f(365,210);
+glVertex2f(385,210);
+glEnd();
+glBegin(GL_LINES);
+glVertex2f(365,210);
+glVertex2f(365,220);
+glEnd();
+glBegin(GL_LINES);
+glVertex2f(385,200);
+glVertex2f(385,210);
+glEnd();
+//coconut
+glBegin(GL_TRIANGLES);
+glVertex2f(365,245);
+glVertex2f(375,265);
+glVertex2f(385,245);
+glEnd();
+
+ }
+
+void house2ugadi()
+{
+    //sidetriangle
+    glColor3f(0.941,0.902,0.549);//khaki
+    glBegin(GL_TRIANGLES);
+    glVertex2i(100,370);
+    glVertex2i(30,300);
+    glVertex2i(180,300);
+    glEnd();
+    //doorwall
+    glColor3f(0.824,0.412,0.118);//choclate
+    glBegin(GL_POLYGON);
+    glVertex2i(50,300);
+    glVertex2i(150,300);
+    glVertex2i(150,200);
+    glVertex2i(50,200);
+    glEnd();
+
+     //door
+   glColor3f(0.686,0.933,0.933);//lightcyan
+    glBegin(GL_POLYGON);
+    glVertex2i(75,250);
+    glVertex2i(125,250);
+    glVertex2i(125,200);
+    glVertex2i(75,200);
+
+    glEnd();
+    torana(-460,50);
+}
+
+void house3ugadi()
+{
+    //sidetriangle
+    glColor3f(0.941,0.902,0.549);//khaki
+    glBegin(GL_TRIANGLES);
+    glVertex2i(225,380);
+    glVertex2i(175,350);
+    glVertex2i(275,350);
+    glEnd();
+    //doorwall
+    glColor3f(0.957,0.643,0.376);//sandybrown
+    glBegin(GL_POLYGON);
+    glVertex2i(200,350);
+    glVertex2i(250,350);
+    glVertex2i(250,300);
+    glVertex2i(200,300);
+    glEnd();
+     //door
+    glColor3f(0.686,0.933,0.933);//lightcyan
+    glBegin(GL_POLYGON);
+    glVertex2i(215,325);
+    glVertex2i(235,325);
+    glVertex2i(235,300);
+    glVertex2i(215,300);
+    glEnd();
+    torana2(-300,100);
+
+}
+
+void house4ugadi()
+{
+    //sidetriangle
+    glColor3f(0.941,0.902,0.549);//khaki
+    glBegin(GL_TRIANGLES);
+    glVertex2i(375,420);
+    glVertex2i(340,400);
+    glVertex2i(410,400);
+    glEnd();
+    //doorwall
+    glColor3f(0.871,0.722,0.529);//burlywood
+    glBegin(GL_POLYGON);
+    glVertex2i(350,400);
+    glVertex2i(400,400);
+    glVertex2i(400,370);
+    glVertex2i(350,370);
+    glEnd();
+     //door
+    glColor3f(0.686,0.933,0.933);//lightcyan
+    glBegin(GL_POLYGON);
+    glVertex2i(365,380);
+    glVertex2i(385,380);
+    glVertex2i(385,370);
+    glVertex2i(365,370);
+
+    glEnd();
+    torana2(-150,150);
+}
+
+void display()
+{
+     glClear(GL_COLOR_BUFFER_BIT);
+
+
+//sky
+glColor3f(0.0,0.9,0.9);
+glBegin(GL_POLYGON);
+glVertex2f(0,380);
+glVertex2f(0,700);
+glVertex2f(1100,700);
+glVertex2f(1100,380);
+glEnd();
+glColor3f(0.545,0.0,0.0);
+    glRasterPos3f(510,620,0);
+    char name4[]="UGADI";
+    for(int i=0;i<strlen(name4);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,name4[i]);
+    }
+    glutSwapBuffers();
+//ground
+glColor3f(0.0,0.8,0.0);
+glBegin(GL_POLYGON);
+glVertex2f(0,0);
+glVertex2f(0,380);
+glVertex2f(1100,380);
+glVertex2f(1100,0);
+glEnd();
+//..............HOUSE..........................................
+house1ugadi();
+//....................sun...................
+    sun();
+//..................kalasa
+   kalasa();
+
+//another house
+ house2ugadi();
+    //another house
+
+  house3ugadi();
+     //another house
+house4ugadi();
+    woman();
+    human();
+    woman2();
+  //  playsound();
+  if(done==0)
+  {
+      PlaySound(TEXT("C:\\Users\\HP\\Downloads\\song.wav"),NULL, SND_ASYNC|SND_FILENAME|SND_LOOP);
+  }
+glFlush();
+
+}
+void woman3()
+{
+   /* glLoadIdentity();
+   counter=counter-0.03;
+   glTranslated(counter+xr,150+yr,0.0);*/
+
+    //top
+    glColor3f(1.0,0.078,0.576);
+    glBegin(GL_POLYGON);
+    glVertex2f(560,165);
+    glVertex2f(590,175);
+    glVertex2f(590,210);
+    glVertex2f(560,200);
+    glEnd();
+    //waist
+    glColor3f(1.0,0.894,0.710);
+    glBegin(GL_POLYGON);
+    glVertex2f(565,160);
+    glVertex2f(585,170);
+    glVertex2f(585,175);
+    glVertex2f(565,165);
+    glEnd();
+    //skirt
+    glColor3f(0.0,0.808,0.820);
+    glBegin(GL_POLYGON);
+    glVertex2f(550,110);
+    glVertex2f(600,120);
+    glVertex2f(590,170);
+    glVertex2f(560,160);
+    glEnd();
+    //sare
+    glColor3f(0.0,0.0,0.710);
+    glBegin(GL_POLYGON);
+    glVertex2f(590,175);
+    glVertex2f(590,185);
+    glVertex2f(570,200);
+    glVertex2f(560,200);
+    glEnd();
+    glColor3f(0.0,0.0,0.710);
+    glBegin(GL_POLYGON);
+    glVertex2f(570,200);
+    glVertex2f(530,130);
+    glVertex2f(540,130);
+    glVertex2f(560,200);
+    glEnd();
+    //face
+
+    glColor3f(1.0,0.894,0.710);
+glBegin(GL_POLYGON);
+    for(int i=0;i<360;i++)
+    {
+        theta=i*3.142/180;
+        glVertex2f(573+15*cos(theta),220+15*sin(theta));
+    }
+
+    glEnd();
+      //eyes
+glColor3f(0.0,0.0,0.0);
+glPointSize(2);
+glBegin(GL_POINTS);
+{
+    glVertex2f(570,220);
+
+    glEnd();
+}
+glBegin(GL_POINTS);
+{
+    glVertex2f(580,220);
+
+    glEnd();
+}
+//hand
+glColor3f(1.0,0.9,0.9);
+  glBegin(GL_POLYGON);
+  glVertex2f(560,200) ;
+  glVertex2f(570,190);
+  glVertex2f(570,180);
+  glVertex2f(560,190);
+  glEnd();
+   glBegin(GL_POLYGON);
+ glVertex2f(590,210) ;
+  glVertex2f(580,200);
+  glVertex2f(580,190);
+  glVertex2f(590,200);
+  glEnd();
+  //plate
+ glColor3f(0.863,0.863,0.863);//gainsboro
+       glBegin(GL_POLYGON);
+       for(int i=0;i<360;i++)
+       {
+        theta=i*3.142/180;
+        glVertex2f(575+15*cos(theta),180+13*sin(theta));
+       }
+       glEnd();
+
+
+glFlush();
+}
+
+void man(int x,int y)
+{
+glPushMatrix();
+glTranslatef(x,y,0);
+//shirt
+glColor3f(0.0,0.9,0.9);
+glBegin(GL_POLYGON);
+glVertex2f(310,350);
+glVertex2f(340,350);
+glVertex2f(350,300);
+glVertex2f(300,300);
+glEnd();
+//pant
+glColor3f(1.0,0.0,0.0);
+glBegin(GL_POLYGON);
+glVertex2f(300,300);
+glVertex2f(325,300);
+glVertex2f(320,280);
+glVertex2f(300,280);
+glEnd();
+
+glColor3f(1.0,0.0,0.0);
+glBegin(GL_POLYGON);
+glVertex2f(325,300);
+glVertex2f(350,300);
+glVertex2f(350,280);
+glVertex2f(330,280);
+glEnd();
+//leg
+glColor3f(1.0,0.9,0.9);
+glBegin(GL_POLYGON);
+glVertex2f(305,280);
+glVertex2f(315,280);
+glVertex2f(315,270);
+glVertex2f(305,270);
+glEnd();
+glColor3f(1.0,0.9,0.9);
+glBegin(GL_POLYGON);
+glVertex2f(335,280);
+glVertex2f(345,280);
+glVertex2f(345,270);
+glVertex2f(335,270);
+glEnd();
+//shirthand
+ glColor3f(0.0,0.9,0.9);
+  glBegin(GL_POLYGON);
+  glVertex2f(310,350);
+  glVertex2f(300,335) ;
+  glVertex2f(300,325);
+  glVertex2f(307,330) ;
+  glEnd();
+  glBegin(GL_POLYGON);
+  glVertex2f(340,350);
+  glVertex2f(350,335) ;
+  glVertex2f(350,325);
+  glVertex2f(343,330) ;
+  glEnd();
+//hand
+glColor3f(1.0,0.9,0.9);
+  glBegin(GL_POLYGON);
+  glVertex2f(300,335) ;
+  glVertex2f(280,330);
+  glVertex2f(280,320);
+  glVertex2f(300,325);
+  glEnd();
+   glBegin(GL_POLYGON);
+  glVertex2f(350,335) ;
+  glVertex2f(370,330);
+  glVertex2f(370,320);
+  glVertex2f(350,325);
+  glEnd();
+
+//head
+glColor3f(1.0,0.9,0.9);
+glBegin(GL_POLYGON);
+    for(int i=0;i<360;i++)
+    {
+        theta=i*3.142/180;
+        glVertex2f(325+15*cos(theta),365+15*sin(theta));
+    }
+
+    glEnd();
+//eyes
+glColor3f(0.0,0.0,0.0);
+glPointSize(2);
+glBegin(GL_POINTS);
+{
+    glVertex2f(320,365);
+}
+glEnd();
+glBegin(GL_POINTS);
+{
+    glVertex2f(330,365);
+}
+glEnd();
+glPopMatrix();
+glFlush();
+}
+
+void moon()
+{
+     //moon
+    for(l=0;l<=50;l++)
+    {
+    glColor3f(0.902,0.902,0.980);
+    draw_circle(700,625,l);
+    }
+    for(l=0;l<=50;l++)
+    {
+    glColor3f(0,0,0);
+    draw_circle(720,630,l);
+    }
+}
+
+void stars()
+{
+   glColor3f(1.00,0.843,0.00);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(470,70);
+    glVertex2i(450,55);
+    glVertex2i(490,55);
+    glEnd();
+    glColor3f(1,1.0,1.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(470,50);
+    glVertex2i(450,65);
+    glVertex2i(490,65);
+    glEnd();
+
+     glColor3f(1.00,0.843,0.00);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(500,70);
+    glVertex2i(490,55);
+    glVertex2i(520,55);
+    glEnd();
+    glColor3f(1,1.0,1.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(500,50);
+    glVertex2i(490,65);
+    glVertex2i(520,65);
+    glEnd();
+     glColor3f(1.0,0.843,0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(470,670);
+    glVertex2i(450,655);
+    glVertex2i(490,655);
+    glEnd();
+    glColor3f(1.0,0.843,0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(470,650);
+    glVertex2i(450,665);
+    glVertex2i(490,665);
+    glEnd();
+
+    //star2
+    glColor3f(1.0,0.843,0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(370,670);
+    glVertex2i(350,655);
+    glVertex2i(390,655);
+    glEnd();
+    glColor3f(1.0,0.843,0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(370,650);
+    glVertex2i(350,665);
+    glVertex2i(390,665);
+    glEnd();
+    //star3
+    glColor3f(1.0,0.843,0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(270,570);
+    glVertex2i(250,555);
+    glVertex2i(290,555);
+    glEnd();
+    glColor3f(1.0,0.843,0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(270,550);
+    glVertex2i(250,565);
+    glVertex2i(290,565);
+    glEnd();
+}
+void housediwali()
+{
+    //roof
+    glColor3f(0.824,0.412,0.118);
+    glBegin(GL_POLYGON);
+    glVertex2i(150,350);
+    glVertex2i(400,350);
+    glVertex2i(350,250);
+    glVertex2i(100,250);
+    glEnd();
+
+
+glColor3f(1,1,1);
+    glRasterPos3f(160,270,0);
+char o[]="press L to decore house";
+    for(int i=0;i<strlen(o);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10,o[i]);
+    }
+    glutSwapBuffers();
+     glColor3f(0,0,0);
+     glBegin(GL_LINES);
+    glVertex2i(150,350);
+    glVertex2i(100,250);
+    glVertex2i(350,250);
+    glVertex2i(100,250);
+    glVertex2i(150,350);
+    glVertex2i(400,350);
+    glVertex2i(400,350);
+    glVertex2i(350,250);
+    glVertex2i(110,210);
+    glEnd();
+    //sidetriangle
+    glColor3f(0.1,0.5,0.5);
+    glBegin(GL_TRIANGLES);
+    glVertex2i(400,350);
+    glVertex2i(450,250);
+    glVertex2i(350,250);
+    glEnd();
+
+     glColor3f(0,0,0);
+    glBegin(GL_LINES);
+      glVertex2i(400,350);
+      glVertex2i(450,250);
+      glVertex2i(350,250);
+
+      glVertex2i(450,250);
+      glVertex2i(350,250);
+    glEnd();
+
+    //WALL
+    glColor3f(0.125,0.698,0.667);
+    glBegin(GL_POLYGON);
+    glVertex2i(100,250);
+    glVertex2i(350,250);
+    glVertex2i(350,100);
+    glVertex2i(100,100);
+    glEnd();
+
+
+
+     glColor3f(0,0,0);
+     glBegin(GL_LINES);
+     glVertex2i(100,250);
+     glVertex2i(350,250);
+     glVertex2i(350,250);
+     glVertex2i(350,100);
+     glVertex2i(350,100);
+     glVertex2i(100,100);
+     glVertex2i(100,250);
+     glVertex2i(100,100);
+     glEnd();
+
+
+
+
+    glColor3f(0.902,0.902,0.908);
+    glBegin(GL_POLYGON);
+    glVertex2i(350,250);
+    glVertex2i(450,250);
+    glVertex2i(450,100);
+    glVertex2i(350,100);
+    glEnd();
+    //sky kandil
+    glColor3f(0.863,0.078,0.235);
+    glBegin(GL_POLYGON);
+    glVertex2i(320,240);
+    glVertex2i(330,225);
+    glVertex2i(320,210);
+    glVertex2i(310,225);
+    glEnd();
+    glColor3f(0.863,0.078,0.235);
+    glBegin(GL_POLYGON);
+    glVertex2i(340,240);
+    glVertex2i(350,225);
+    glVertex2i(340,210);
+    glVertex2i(330,225);
+    glEnd();
+    glColor3f(0.863,0.078,0.235);
+    glBegin(GL_LINES);
+    glVertex2i(320,240);
+    glVertex2i(340,240);
+    glEnd();
+    glColor3f(0.863,0.078,0.235);
+    glBegin(GL_LINES);
+    glVertex2i(320,241);
+    glVertex2i(340,241);
+    glEnd();
+    glColor3f(0.863,0.078,0.235);
+    glBegin(GL_LINES);
+    glVertex2i(320,242);
+    glVertex2i(340,242);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2i(320,210);
+    glVertex2i(340,210);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2i(320,211);
+    glVertex2i(340,211);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2i(320,211);
+    glVertex2i(340,211);
+    glEnd();
+    glColor3f(0,0,0);
+    glBegin(GL_LINES);
+    glVertex2i(330,242);
+    glVertex2i(330,250);
+    glEnd();
+    glColor3f(1,1,1);
+    glBegin(GL_LINES);
+    glVertex2i(320,210);
+    glVertex2i(320,180);
+
+    glVertex2i(322,210);
+    glVertex2i(322,180);
+
+    glVertex2i(324,210);
+    glVertex2i(324,180);
+
+    glVertex2i(326,210);
+    glVertex2i(326,180);
+
+    glVertex2i(328,210);
+    glVertex2i(328,180);
+
+    glVertex2i(330,210);
+    glVertex2i(330,180);
+
+    glVertex2i(332,210);
+    glVertex2i(332,180);
+
+    glVertex2i(334,210);
+    glVertex2i(334,180);
+
+    glVertex2i(336,210);
+    glVertex2i(336,180);
+
+    glVertex2i(338,210);
+    glVertex2i(338,180);
+
+    glVertex2i(340,210);
+    glVertex2i(340,180);
+    glEnd();
+
+
+
+
+   int x=0;
+    for(int i=0;i<8;i++)
+{
+    glColor3f(0,0.5022,0.0);
+    glBegin(GL_POLYGON);
+    glVertex2i(350+x,250);
+    glVertex2i(360+x,250);
+    glVertex2i(360+x,235);
+    glVertex2f(355+x,230);
+    glVertex2i(350+x,235);
+    glEnd();
+    x=x+13;
+}
+   //door
+    glColor3f(0.502,0.00,0.00);
+    glBegin(GL_POLYGON);
+    glVertex2i(385,200);
+    glVertex2i(425,200);
+    glVertex2i(425,100);
+    glVertex2i(385,100);
+    glEnd();
+
+    //Window1
+    glColor3f(1.00,0.894,0.882);
+    glBegin(GL_POLYGON);
+    glVertex2i(130,200);
+    glVertex2i(190,200);
+    glVertex2i(190,150);
+    glVertex2i(130,150);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glColor3f(1,0,0);
+    glLineWidth(7);
+    glVertex2i(650,190);
+    glVertex2i(650,230);
+    glVertex2i(651,190);
+    glVertex2i(650,210);
+    glVertex2i(645,220);
+    glVertex2i(350,60);
+    glEnd();
+
+    //window2
+    glColor3f(1.00,0.894,0.882);
+    glBegin(GL_POLYGON);
+    glVertex2i(250,200);
+    glVertex2i(310,200);
+    glVertex2i(310,150);
+    glVertex2i(250,150);
+    glEnd();
+}
+
+void tulsikatte()
+{
+    glBegin(GL_LINES);
+      glColor3f(0,1,0);
+      glVertex2i(650,190);
+      glVertex2i(650,230);
+      glVertex2i(651,190);
+      glVertex2i(651,230);
+      glVertex2i(652,190);
+      glVertex2i(652,230);
+      glEnd();
+
+      glPointSize(3);
+      glBegin(GL_POINTS);
+      glColor3f(1,0,0);
+      glVertex2f(650,230);
+      glEnd();
+      glBegin(GL_LINES);
+      glColor3f(0,1,0);
+      glVertex2i(650,210);
+      glVertex2i(655,220);
+      glEnd();
+      glBegin(GL_LINES);
+      glColor3f(0,1,0);
+      glVertex2i(650,210);
+      glVertex2i(645,220);
+      glEnd();
+      //top small square
+      glColor3f(0.941,0.502,0.502);
+      glBegin(GL_POLYGON);
+      glVertex2i(640,190);
+      glVertex2i(660,190);
+      glVertex2i(660,180);
+      glVertex2i(640,180);
+      glEnd();
+       //top
+    glColor3f(0.698,0.133,0.133);
+    glBegin(GL_POLYGON);
+    glVertex2i(600,180);
+    glVertex2i(700,180);
+    glVertex2i(700,160);
+    glVertex2i(600,160);
+    glEnd();
+    //MIDDLE SQUARE
+    glColor3f(0.941,0.502,0.502);
+    glBegin(GL_POLYGON);
+    glVertex2i(620,160);
+    glVertex2i(680,160);
+    glVertex2i(680,120);
+    glVertex2i(620,120);
+    glEnd();
+    //CIRCLE
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0,0,0);
+    draw_circle(650,140,l);
+    }
+
+     //bottom
+    glColor3f(0.698,0.133,0.133);
+    glBegin(GL_POLYGON);
+    glVertex2i(600,120);
+    glVertex2i(700,120);
+    glVertex2i(700,100);
+    glVertex2i(600,100);
+    glEnd();
+}
+
+
+void tree()
+{
+     glColor3f(0.9,0.2,0.0);
+    glBegin(GL_POLYGON);
+    glVertex2f(1000,250);
+    glVertex2f(1000,320);
+    glVertex2f(1015,320);
+    glVertex2f(1015,250);
+    glEnd();
+    for(l=0;l<=30;l++)
+	{
+		glColor3f(0.0,0.5,0.0);
+		draw_circle(990,315,l);
+		draw_circle(1030,315,l);
+	}
+	for(l=0;l<=25;l++)
+	{
+		glColor3f(0.0,0.5,0.0);
+		draw_circle(1000,355,l);
+		draw_circle(1020,355,l);
+	}
+	for(l=0;l<=20;l++)
+	{
+		glColor3f(0.0,0.5,0.0);
+		draw_circle(1010,380,l);
+	}
+}
+
+//............................diwalii..................................................
+void diwali()
+{
+     glClear(GL_COLOR_BUFFER_BIT);
+     glColor3f(0.0,0.0,1.0);
+
+    glTranslatef(posX,posY,posZ);
+
+//.............sky,star,moon...............//
+     //sky night
+     glColor3f(0.0,0.0,0.0);
+     glBegin(GL_POLYGON);
+     glVertex2f(0,500);
+     glVertex2f(0,700);
+     glVertex2f(1100,700);
+     glVertex2f(1100,500);
+     glEnd();
+     glColor3f(1,1,1);
+    glRasterPos3f(510,620,0);
+    char name4[]="DIWALI";
+    for(int i=0;i<strlen(name4);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,name4[i]);
+    }
+    glutSwapBuffers();
+    moon();
+
+ //stars
+    stars();
+//ground
+glColor3f(0.184,0.310,0.310);
+glBegin(GL_POLYGON);
+glVertex2f(0,0);
+glVertex2f(0,500);
+glVertex2f(1100,500);
+glVertex2f(1100,0);
+glEnd();
+ glColor3f(1,1,1);
+    glRasterPos3f(25,50,0);
+char d[]="press d to light diyas";
+    for(int i=0;i<strlen(d);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10,d[i]);
+    }
+    glutSwapBuffers();
+    glColor3f(1,1,1);
+    glRasterPos3f(650,240,0);
+char k[]="press p to enjoy crackers ";
+    for(int i=0;i<strlen(k);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_10,k[i]);
+    }
+    glutSwapBuffers();
+
+//..............HOUSE..........................................
+ housediwali();
+    //...............tulasi kattee.........//
+      //tulasi katte
+tulsikatte();
+
+//...............tulasi katte end.........//
+
+//..................tree start...................//
+   tree();
+woman3();
+//man(100,150);
+//man(100,200);
+	glFlush();
+}
+//...........end tree...................//
+
+void lighting()
+{
+    for(l=0;l<=3;l++)
+    {glColor3f(1.0,0.843,0.000);
+    draw_circle(106,251,l);    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(108,242,l);
+    }
+
+     for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(110,233,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(112,224,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(114,215,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(124,213,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(134,213,l);
+    }
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(144,213,l);
+    }
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(154,213,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(157,215,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(159,224,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(161,233,l);
+    }
+
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(162,242,l);
+    }
+
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(163,251,l);
+    }
+
+
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(163,251,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(165,242,l);
+    }
+
+     for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(167,233,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(169,224,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(171,215,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(181,213,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(191,213,l);
+    }
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(201,213,l);
+    }
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(211,213,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(212,215,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(213,224,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(216,233,l);
+    }
+
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(217,242,l);
+    }
+
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(218,251,l);
+    }
+
+
+
+
+
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(220,251,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(222,242,l);
+    }
+
+     for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(224,233,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(226,224,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(228,215,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(238,213,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(248,213,l);
+    }
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(258,213,l);
+    }
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(268,213,l);
+    }
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(278,215,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(279,224,l);
+    }
+
+        for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(280,233,l);
+    }
+
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(281,242,l);
+    }
+
+
+    for(l=0;l<=3;l++)
+    {
+    glColor3f(1.0,0.843,0.000);
+    draw_circle(281,251,l);
+    }
+    glFlush();
+
+}
+int c=800;
+
+ void patakiupper(int x,int y)
+ {
+     glPushMatrix();
+     glTranslatef(x,y,0);
+
+     glBegin(GL_LINES);
+    glColor3f(1.0,0.647,0.0);
+    glVertex2i(730,280);
+    glVertex2i(730,440);
+    glEnd();
+
+      glBegin(GL_LINES);
+    glColor3f(1.00,0.843,0.0);
+    glVertex2i(730,280);
+    glVertex2i(732,500);
+
+    glEnd();
+
+
+
+
+    glBegin(GL_LINES);
+    glColor3f(1.0,0.549,0.0);
+    glVertex2i(730,280);
+    glVertex2i(734,500);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2i(730,280);
+    glVertex2i(728,280);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glColor3f(1.0,0.549,0.0);
+    glVertex2i(730,280);
+    glVertex2i(740,470);
+    glEnd();
+    glBegin(GL_LINES);
+    glVertex2i(730,280);
+    glVertex2i(735,452);
+    glEnd();
+
+     glBegin(GL_LINES);
+     glColor3f(1.0,0.549,0.0);
+    glVertex2i(730,280);
+    glVertex2i(730,455);
+    glEnd();
+    glBegin(GL_LINES);
+    glColor3f(1.0,0.549,0.0);
+    glVertex2i(730,280);
+    glVertex2i(725,480);
+    glEnd();
+    glPopMatrix();
+    glFlush();
+ }
+ void patakitriangle(int x,int y){
+     glPushMatrix();
+     glTranslatef(x,y,0);
+     glColor3f(0,0,0);
+    glBegin(GL_TRIANGLES);
+    glColor3f(1.0,0.0,0.0);
+    glVertex2i(720,250);
+    glVertex2i(730,280);
+    glVertex2i(740,250);
+    glEnd();
+    glPopMatrix();
+
+
+ }
+void pataki()
+{
+    done=done+1;
+if(done==1){
+    PlaySound(TEXT("C:\\Users\\HP\\Downloads\\firework2"),NULL, SND_ASYNC|SND_FILENAME|SND_LOOP);
+}
+    glFlush();
+    patakitriangle(-40,0);
+ patakiupper(-40,0);
+
+patakitriangle(0,0);
+ patakiupper(0,0);
+patakitriangle(40,0);
+ patakiupper(40,0);
+patakitriangle(80,0);
+patakiupper(80,0);
+patakitriangle(120,0);
+patakiupper(120,0);
+
+}
+void diya()
+{
+    //...........diya start..................//
+
+glTranslatef(posX,posY,posZ);
+
+//d1
+    for(l=0;l<=10;l++)
+    {
+   glColor3f(0.804,0.361,0.361);
+    draw_circle(720,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(720,120,l);
+
+
+    }
+//d2
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(750,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(750,120,l);
+
+    }
+//d3
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(780,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(780,120,l);
+
+
+    }
+//d4
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(810,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(810,120,l);
+
+
+    }
+//d5
+    for(l=0;l<=10;l++)
+    {
+   glColor3f(0.804,0.361,0.361);
+    draw_circle(840,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(840,120,l);
+
+    }
+//d6
+    for(l=0;l<=10;l++)
+    {
+   glColor3f(0.804,0.361,0.361);
+    draw_circle(870,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(870,120,l);
+    }
+//d7
+    for(l=0;l<=10;l++)
+    {
+     glColor3f(0.804,0.361,0.361);
+    draw_circle(900,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(900,120,l);
+    }
+//d8
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(930,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(930,120,l);
+    }
+//d9
+    for(l=0;l<=10;l++)
+    {
+     glColor3f(0.804,0.361,0.361);
+    draw_circle(960,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(960,120,l);
+    }
+//d10
+    for(l=0;l<=10;l++)
+    {
+     glColor3f(0.804,0.361,0.361);
+    draw_circle(990,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(990,120,l);
+    }
+//d11
+    for(l=0;l<=10;l++)
+    {
+     glColor3f(0.804,0.361,0.361);
+    draw_circle(1020,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(1020,120,l);
+    }
+//d12
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(1050,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(1050,120,l);
+    }
+//d13
+    for(l=0;l<=10;l++)
+    {
+     glColor3f(0.804,0.361,0.361);
+    draw_circle(1080,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(1080,120,l);
+    }
+     int w=0;
+    for(int i=0;i<14;i++)
+{
+    glColor3f(1.0,0.271,0.0);
+    glBegin(GL_LINES);
+    glVertex2i(724+w,110);
+    glVertex2i(724+w,120);
+    glColor3f(1.0,0.271,0.0);
+    glBegin(GL_LINES);
+    glVertex2i(723+w,110);
+    glVertex2i(723+w,122);
+
+    glColor3f(1.00,0.549,0.00);
+    glBegin(GL_LINES);
+    glVertex2i(722+w,110);
+    glVertex2i(722+w,123);
+    glColor3f(1.00,0.549,0.00);
+    glBegin(GL_LINES);
+    glVertex2i(721+w,110);
+    glVertex2i(721+w,124);
+    glColor3f(1.00,0.549,0.00);
+    glBegin(GL_LINES);
+    glVertex2i(720+w,110);
+    glVertex2i(720+w,125);
+    glColor3f(1.00,0.549,0.00);
+    glBegin(GL_LINES);
+    glVertex2i(719+w,110);
+    glVertex2i(719+w,124);
+
+    glColor3f(1.0,0.271,0.0);
+    glBegin(GL_LINES);
+    glVertex2i(718+w,110);
+    glVertex2i(718+w,123);
+    glColor3f(1.0,0.271,0.0);
+    glBegin(GL_LINES);
+    glVertex2i(717+w,110);
+    glVertex2i(717+w,122);
+    glEnd();
+
+
+    w=w+30;
+}
+//-------------------------inside wall diya-----------------------------------------
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(330,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.125,0.698,0.667);
+    draw_circle(330,120,l);
+    }
+
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(300,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.125,0.698,0.667);
+    draw_circle(300,120,l);
+    }
+
+     for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(270,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.125,0.698,0.667);
+    draw_circle(270,120,l);
+    }
+
+     for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(240,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.125,0.698,0.667);
+    draw_circle(240,120,l);
+    }
+
+     for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(210,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.125,0.698,0.667);
+    draw_circle(210,120,l);
+    }
+
+     for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(180,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.125,0.698,0.667);
+    draw_circle(180,120,l);
+    }
+
+     for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(150,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.125,0.698,0.667);
+    draw_circle(150,120,l);
+    }
+
+     for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(120,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.125,0.698,0.667);
+    draw_circle(120,120,l);
+    }
+//------------end of wall--------------------
+for(l=0;l<=10;l++)
+    {
+    glColor3f(0.902,0.902,0.980);
+    draw_circle(90,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(90,120,l);
+    }
+
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.902,0.902,0.980);
+    draw_circle(60,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(60,120,l);
+    }
+
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.804,0.361,0.361);
+    draw_circle(30,110,l);
+    }
+    for(l=0;l<=10;l++)
+    {
+    glColor3f(0.184,0.310,0.310);
+    draw_circle(30,120,l);
+    }
+    int q=0;
+    for(int i=0;i<11;i++)
+{
+    glColor3f(1.0,0.271,0.0);
+    glBegin(GL_LINES);
+    glVertex2i(33+q,110);
+    glVertex2i(33+q,120);
+    glColor3f(1.0,0.271,0.0);
+    glBegin(GL_LINES);
+    glVertex2i(32+q,110);
+    glVertex2i(32+q,122);
+
+    glColor3f(1.00,0.549,0.00);
+    glBegin(GL_LINES);
+    glVertex2i(31+q,110);
+    glVertex2i(31+q,123);
+    glColor3f(1.00,0.549,0.00);
+    glBegin(GL_LINES);
+    glVertex2i(30+q,110);
+    glVertex2i(30+q,124);
+    glColor3f(1.00,0.549,0.00);
+    glBegin(GL_LINES);
+    glVertex2i(29+q,110);
+    glVertex2i(29+q,125);
+    glColor3f(1.00,0.549,0.00);
+    glBegin(GL_LINES);
+    glVertex2i(28+q,110);
+    glVertex2i(28+q,124);
+
+    glColor3f(1.0,0.271,0.0);
+    glBegin(GL_LINES);
+    glVertex2i(27+q,110);
+    glVertex2i(27+q,123);
+    glColor3f(1.0,0.271,0.0);
+    glBegin(GL_LINES);
+    glVertex2i(26+q,110);
+    glVertex2i(26+q,122);
+    glEnd();
+
+
+    q=q+30;
+}
+
+
+glFlush();
+}
+void tree1()
+{
+     glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,0.0);
+    glVertex2f(850,80);
+    glVertex2f(880,180);
+    glVertex2f(720,180);
+    glVertex2f(750,80);
+    glEnd();
+
+     glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,0.0);
+    glVertex2f(790,150);
+    glVertex2f(790,250);
+    glVertex2f(810,250);
+    glVertex2f(810,150);
+    glEnd();
+int l2=0;
+for(int i=0;i<8;i++)
+{
+    glColor3f(0.0,0.392,0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(700,200+l2);
+    glVertex2f(800,300+l2);
+    glVertex2f(900,200+l2);
+    l2=l2+50;
+    glEnd();
+
+}
+//lightings on the tree
+   for(int l=0;l<=10;l++)
+    {
+    glColor3f(1.0,0.843,0.0);
+    draw_circle(800,280,l);
+    }
+    for(int l=0;l<=10;l++)
+    {
+    glColor3f(1.0,0.271,0.0);
+    draw_circle(850,400,l);
+    }
+     for(int l=0;l<=10;l++)
+    {
+    glColor3f(0.0,1.0,1.0);
+    draw_circle(750,300,l);
+    }
+     for(int l=0;l<=10;l++)
+    {
+    glColor3f(0.957,0.643,0.376);
+    draw_circle(830,600,l);
+    }
+     for(int l=0;l<=10;l++)
+    {
+    glColor3f(0.941,0.502,0.502);
+    draw_circle(750,550,l);
+    }
+      for(int l=0;l<=10;l++)
+    {
+    glColor3f(0.941,0.502,0.502);
+    draw_circle(900,280,l);
+    }
+int lk=0;
+for(int j=0;j<4;j++)
+{
+
+      for(int l=0;l<=10;l++)
+    {
+
+    glColor3f(1.0,0.271,0.0);
+    draw_circle(900,180+lk,l);
+    }
+      for(int l=0;l<=10;l++)
+    {
+    glColor3f(1,1,0);
+    draw_circle(700,180+lk,l);
+    }
+    lk=lk+100;
+}
+int hh=0;
+ for(int h=0;h<8;h++)
+    {glColor3f(0,0,0);
+    glBegin(GL_LINES);
+    glColor3f(0,0,0);
+    glVertex2f(700,200+hh);
+    glVertex2f(700,190+hh);
+    glVertex2f(900,200+hh);
+    glVertex2f(900,190+hh);
+    glEnd();
+    hh=hh+50;
+}
+
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(785,420);
+glVertex2f(800,440);
+glVertex2f(815,420);
+glEnd();
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(785,435);
+glVertex2f(800,415);
+glVertex2f(815,435);
+glEnd();
+
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(768,520);
+glVertex2f(780,540);
+glVertex2f(795,520);
+glEnd();
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(765,535);
+glVertex2f(780,515);
+glVertex2f(795,535);
+glEnd();
+
+
+int tf=0;
+for( int t=0;t<4;t++)
+{
+glColor3f(1.0,0.843,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(685,220+tf);
+glVertex2f(700,240+tf);
+glVertex2f(715,220+tf);
+glEnd();
+glColor3f(1.0,0.843,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(685,235+tf);
+glVertex2f(700,215+tf);
+glVertex2f(715,235+tf);
+glEnd();
+
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(885,220+tf);
+glVertex2f(900,240+tf);
+glVertex2f(915,220+tf);
+glEnd();
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(885,235+tf);
+glVertex2f(900,215+tf);
+glVertex2f(915,235+tf);
+glEnd();
+tf=tf+100;
+}
+glFlush();
+}
+
+void gifts2(int x,int y)
+{
+
+glPushMatrix();
+glTranslatef(x,y,0);
+glColor3f(0,0,0);
+glBegin(GL_POLYGON);
+glColor3f(1,0.843,0);
+glVertex2f(740,100);
+glVertex2f(850,100);
+glVertex2f(850,80);
+glVertex2f(740,80);
+glEnd();
+
+glBegin(GL_POLYGON);
+glColor3f(1,0.412,0.706);
+glVertex2f(750,80);
+glVertex2f(840,80);
+glVertex2f(840,20);
+glVertex2f(750,20);
+glEnd();
+glColor3f(1,0.412,0.706);
+glBegin(GL_TRIANGLES);
+glVertex2f(760,95);
+glVertex2f(785,90);
+glVertex2f(760,85);
+glEnd();
+
+glBegin(GL_TRIANGLES);
+glVertex2f(810,95);
+glVertex2f(785,90);
+glVertex2f(810,85);
+glEnd();
+
+/*glBegin(GL_LINES);
+glColor3f(0,0,0);
+glVertex2f(125,200);
+glVertex2f(125,100);
+glEnd();
+
+glBegin(GL_TRIANGLES);
+glVertex2f(125,175);
+glVertex2f(150,185);
+glVertex2f(150,165);
+glEnd();
+
+glBegin(GL_TRIANGLES);
+glVertex2f(125,175);
+glVertex2f(100,185);
+glVertex2f(100,165);
+glEnd();*/
+
+glPopMatrix();
+
+
+}
+void gifts()
+{
+    //glClear(GL_COLOR_BUFFER_BIT);
+glBegin(GL_POLYGON);
+glColor3f(1,0.843,0.0);
+glVertex2f(70,100);
+glVertex2f(70,150);
+glVertex2f(180,150);
+glVertex2f(180,100);
+glEnd();
+
+glBegin(GL_POLYGON);
+glColor3f(1,0.843,0.0);
+glVertex2f(60,200);
+glVertex2f(190,200);
+glVertex2f(190,150);
+glVertex2f(60,150);
+glEnd();
+
+glBegin(GL_LINES);
+glColor3f(0,0,0);
+glVertex2f(125,200);
+glVertex2f(125,100);
+glEnd();
+
+glBegin(GL_TRIANGLES);
+glVertex2f(125,175);
+glVertex2f(150,185);
+glVertex2f(150,165);
+glEnd();
+
+glBegin(GL_TRIANGLES);
+glVertex2f(125,175);
+glVertex2f(100,185);
+glVertex2f(100,165);
+glEnd();
+
+glFlush();
+}
+void santha()
+{
+
+     glColor3f(1,0,0);
+     glBegin(GL_POLYGON);
+
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(900+50*cos(theta)+xr,300+50*sin(theta)+yr);
+    }
+
+    glEnd();
+     //head
+     glColor3f(1,0,0);
+      glBegin(GL_POLYGON);
+
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(900+30*cos(theta)+xr,380+30*sin(theta)+yr);
+    }
+
+    glEnd();
+     //eye
+     glColor3f(0,0,0);
+      glBegin(GL_POLYGON);
+
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(885+3*cos(theta)+xr,383+3*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glColor3f(0,0,0);
+      glBegin(GL_POLYGON);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(911+3*cos(theta)+xr,383+3*sin(theta)+yr);
+    }
+
+    glEnd();
+     //leg
+     glColor3f(1,0,0);
+     glBegin(GL_POLYGON);
+
+     glVertex2f(890+xr,270+yr);
+     glVertex2f(870+xr,270+yr);
+     glVertex2f(870+xr,170+yr);
+     glVertex2f(890+xr,170+yr);
+     glEnd();
+      glBegin(GL_POLYGON);
+
+     glVertex2f(930+xr,270+yr);
+     glVertex2f(910+xr,270+yr);
+     glVertex2f(910+xr,170+yr);
+     glVertex2f(930+xr,170+yr);
+     glEnd();
+     //boot
+     glColor3f(0,0,0);
+     glBegin(GL_POLYGON);
+
+     glVertex2f(850+xr,170+yr);
+     glVertex2f(890+xr,170+yr);
+     glVertex2f(890+xr,150+yr);
+     glVertex2f(850+xr,150+yr);
+     glEnd();
+
+      glBegin(GL_POLYGON);
+    // glColor3f(0,0,0);
+     glVertex2f(910+xr,170+yr);
+     glVertex2f(950+xr,170+yr);
+     glVertex2f(950+xr,150+yr);
+     glVertex2f(910+xr,150+yr);
+     glEnd();
+     //hand
+     glColor3f(1,0,0);
+     glBegin(GL_POLYGON);
+
+     glVertex2f(850+xr,330+yr);
+     glVertex2f(855+xr,330+yr);
+     glVertex2f(855+xr,310+yr);
+     glVertex2f(850+xr,310+yr);
+     glEnd();
+
+     glBegin(GL_POLYGON);
+     //glColor3f(1,0,0);
+     glVertex2f(850+xr,330+yr);
+     glVertex2f(830+xr,330+yr);
+     glVertex2f(830+xr,250+yr);
+     glVertex2f(850+xr,250+yr);
+     glEnd();
+
+
+          glColor3f(1,0,0);
+
+      glBegin(GL_POLYGON);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(840+10*cos(theta)+xr,250+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glColor3f(1.0,0.894,0.769);
+     glBegin(GL_POLYGON);
+
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(840+5*cos(theta)+xr,240+5*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+      glColor3f(1.0,0.894,0.769);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(848+5*cos(theta)+xr,242+5*sin(theta)+yr);
+    }
+
+    glEnd();
+
+
+      glBegin(GL_POLYGON);
+     // glColor3f(1.0,0.894,0.769);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(832+5*cos(theta)+xr,242+5*sin(theta)+yr);
+    }
+
+    glEnd();
+     glColor3f(1,0,0);     //lefthand
+     glBegin(GL_POLYGON);
+
+     glVertex2f(945+xr,330+yr);
+     glVertex2f(960+xr,330+yr);
+     glVertex2f(960+xr,310+yr);
+     glVertex2f(945+xr,310+yr);
+     glEnd();
+
+     glBegin(GL_POLYGON);
+    // glColor3f(1,0,0);
+     glVertex2f(950+xr,330+yr);
+     glVertex2f(970+xr,330+yr);
+     glVertex2f(970+xr,250+yr);
+     glVertex2f(950+xr,250+yr);
+     glEnd();
+
+      glBegin(GL_POLYGON);
+      //glColor3f(1,0,0);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(960+10*cos(theta)+xr,250+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+     glBegin(GL_POLYGON);
+      glColor3f(1.0,0.894,0.769);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(960+5*cos(theta)+xr,240+5*sin(theta)+yr);
+    }
+
+    glEnd();
+
+     glBegin(GL_POLYGON);
+     // glColor3f(1,0,0);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(968+5*cos(theta)+xr,242+5*sin(theta)+yr);
+    }
+
+    glEnd();
+
+     glBegin(GL_POLYGON);
+     // glColor3f(1,0,0);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(952+5*cos(theta)+xr,242+5*sin(theta)+yr);
+    }
+
+    glEnd();
+
+     //cap
+     glBegin(GL_TRIANGLES);
+     glColor3f(1.0,0,0);
+     glVertex2f(870+xr,400+yr);
+     glVertex2f(930+xr,400+yr);
+     glVertex2f(900+xr,470+yr);
+     glEnd();
+
+     glBegin(GL_TRIANGLES);
+     glVertex2f(900+xr,470+yr);
+     glVertex2f(950+xr,440+yr);
+     glVertex2f(945+xr,420+yr);
+     glEnd();
+     glColor3f(1,1,1);
+
+      glBegin(GL_POLYGON);
+     // glColor3f(1,0,0);
+    for(int i=0;i<360;i++)
+    {
+        theta=i*3.142/180;
+        glVertex2f(950+10*cos(theta)+xr,430+10*sin(theta)+yr);
+    }
+
+    glEnd();
+glColor3f(0.804,0.361,0.361);
+glBegin(GL_POLYGON);
+
+glVertex2f(750+xr,250+yr);
+glVertex2f(820+xr,250+yr);
+glVertex2f(820+xr,180+yr);
+glVertex2f(750+xr,180+yr);
+glEnd();
+
+glBegin(GL_LINES);
+glVertex2f(760+xr,250+yr);
+glVertex2f(760+xr,300+yr);
+glEnd();
+
+glBegin(GL_LINES);
+glVertex2f(810+xr,250+yr);
+glVertex2f(810+xr,300+yr);
+glEnd();
+
+glBegin(GL_LINES);
+glVertex2f(760+xr,300+yr);
+glVertex2f(810+xr,300+yr);
+glEnd();
+
+//mustach
+
+
+     glColor3f(1.0,1,1);
+     glBegin(GL_POLYGON);
+
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(884+10*cos(theta)+xr,360+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+      //glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(880+10*cos(theta)+xr,350+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+
+      glBegin(GL_POLYGON);
+      //glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(915+12*cos(theta)+xr,350+12*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+      //glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(900+15*cos(theta)+xr,350+15*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+     // glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(924+10*cos(theta)+xr,357+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+     // glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(888+10*cos(theta)+xr,340+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+      //glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(918+10*cos(theta)+xr,340+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+      //glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(896+10*cos(theta)+xr,330+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+     // glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(910+10*cos(theta)+xr,330+10*sin(theta)+yr);
+    }
+
+    glEnd();
+
+      glBegin(GL_POLYGON);
+      //glColor3f(1.0,1,1);
+    for(int i=0;i<360;i++)
+    {
+
+        theta=i*3.142/180;
+        glVertex2f(904+10*cos(theta)+xr,320+10*sin(theta)+yr);
+    }
+
+    glEnd();
+    glFlush();
+
+
+}
+void opndoor()
+{
+glColor3f(1.0,1.0,1.0);
+glBegin(GL_POLYGON);
+glVertex2f(30,550);
+glVertex2f(170,550);
+glVertex2f(170,200);
+glVertex2f(30,200);
+glEnd();
+glColor3f(0.545,0.271,0.075);
+glBegin(GL_POLYGON);
+glVertex2f(30,550);
+glVertex2f(100,500);
+glVertex2f(100,250);
+glVertex2f(30,200);
+glEnd();
+glFlush();
+}
+
+void chrismas()
+{
+opndoor();
+//Floor
+glColor3f(0.502,0.00,0.00);
+glBegin(GL_POLYGON);
+glVertex2f(0,0);
+glVertex2f(0,200);
+glVertex2f(1100,200);
+glVertex2f(1100,0);
+glEnd();
+//******floor end//*****
+//side wall where door is there*******
+glColor3f(0.871,0.7222,0.529);
+glBegin(GL_POLYGON);
+glVertex2f(0,700);
+glVertex2f(200,700);
+glVertex2f(200,200);
+glVertex2f(0,200);
+glEnd();
+//**end of side wall where door is there**
+//door wall*******
+glColor3f(1.0,1.0,1.0);
+glBegin(GL_POLYGON);
+glVertex2f(30,550);
+glVertex2f(170,550);
+glVertex2f(170,200);
+glVertex2f(30,200);
+glEnd();
+//end of door wall****
+
+//**door****
+glColor3f(0.545,0.271,0.075);
+glBegin(GL_POLYGON);
+glVertex2f(30,550);
+glVertex2f(170,550);
+glVertex2f(170,200);
+glVertex2f(30,200);
+glEnd();
+//end of door******
+
+//+ symbol***+
+//horizonal
+glColor3f(1.0,1.0,1.0);
+glBegin(GL_POLYGON);
+glVertex2f(55,650);
+glVertex2f(145,650);
+glVertex2f(145,640);
+glVertex2f(55,640);
+glEnd();
+//**end of horizonal plus
+//vertiacl
+glColor3f(1.0,1.0,1.0);
+glBegin(GL_POLYGON);
+glVertex2f(95,670);
+glVertex2f(105,670);
+glVertex2f(105,580);
+glVertex2f(95,580);
+glEnd();
+//**end of vertical plus
+//+end
+//full room*****
+glColor3f(0.686,0.933,0.933);
+glBegin(GL_POLYGON);
+glVertex2f(200,700);
+glVertex2f(1100,700);
+glVertex2f(1100,200);
+glVertex2f(200,200);
+glEnd();
+//end of room*****
+
+//*front design**
+
+glColor3f(0.098,0.098,0.439);
+int x=0;
+for(int i=0;i<5;i++)
+{
+glBegin(GL_LINES);
+glVertex2f(200+x,700);
+glVertex2f(220+x,600);
+glEnd();
+glBegin(GL_LINES);
+glVertex2f(220+x,600);
+glVertex2f(360+x,600);
+glEnd();
+glBegin(GL_LINES);
+glVertex2f(360+x,600);
+glVertex2f(380+x,700);
+x=x+180;
+glEnd();
+}
+//lights
+int y=0;
+for(int j=0;j<5;j++)
+{
+    for(int l=0;l<=5;l++)
+    {
+    glColor3f(1.0,0.0,0.0);
+    draw_circle(200,700,l);
+    glColor3f(1.0,1.0,0.0);
+    draw_circle(205+y,675,l);
+    glColor3f(0.0,0.0,1.0);
+    draw_circle(210+y,650,l);
+    glColor3f(0.0,0.392,0.0);
+    draw_circle(215+y,625,l);
+    glColor3f(1.0,0.0,0.0);
+    draw_circle(220+y,600,l);
+
+    draw_circle(290+y,600,l);
+    glColor3f(1.0,1.0,0.0);
+    draw_circle(255+y,600,l);
+    glColor3f(0.0,0.392,0.0);
+    draw_circle(325+y,600,l);
+    glColor3f(1.0,0.0,0.0);
+    draw_circle(360+y,600,l);
+
+
+    draw_circle(365+y,625,l);
+    glColor3f(1.0,1.0,0.0);
+    draw_circle(370+y,650,l);
+    glColor3f(0.0,0.392,0.0);
+    draw_circle(375+y,675,l);
+    glColor3f(1.0,1.0,0.0);
+    draw_circle(380+y,700,l);
+
+    }
+    y=y+180;
+}
+//star
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(540,500);
+glVertex2f(600,600);
+glVertex2f(660,500);
+glEnd();
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(540,580);
+glVertex2f(600,480);
+glVertex2f(660,580);
+glEnd();
+
+//end of lights********
+//strat of flower pot
+glColor3f(0.824,0.522,0.247);
+glBegin(GL_POLYGON);
+glVertex2f(230,250);
+glVertex2f(320,250);
+glVertex2f(300,200);
+glVertex2f(250,200);
+glEnd();
+
+glBegin(GL_POLYGON);
+glVertex2f(275,250);
+glVertex2f(280,250);
+glVertex2f(275,350);
+glVertex2f(280,350);
+glEnd();
+
+glColor3f(0.180,0.545,0.341);
+int h=0;
+for(int i=0;i<3;i++)
+{
+    glBegin(GL_TRIANGLES);
+glVertex2f(280,255+h);
+glVertex2f(290,285+h);
+glVertex2f(330,250+h);
+glEnd();
+h=h+40;
+}
+
+int h1=0;
+for(int j=0;j<3;j++)
+{
+glBegin(GL_TRIANGLES);
+glVertex2f(250,255+h1);
+glVertex2f(240,285+h1);
+glVertex2f(280,250+h1);
+glEnd();
+h1=h1+40;
+}
+for(int i=0;i<13;i++)
+{
+    glColor3f(1,0.843,0.0);
+    draw_circle(275,360,i);
+}
+santha();
+done=done+1;
+if(done==2){
+    PlaySound(TEXT("C:\\Users\\HP\\Downloads\\jingle"),NULL, SND_ASYNC|SND_FILENAME|SND_LOOP);
+}
+glFlush();
+}
+
+
+void chrismastree()
+{
+    tree1();
+gifts();
+santha();
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.502,0.502,0.502);
+    glBegin(GL_POLYGON);
+    glVertex2f(0,0);
+    glVertex2f(0,700);
+    glVertex2f(1100,700);
+    glVertex2f(1100,0);
+    glEnd();
+
+    //floor
+    glColor3f(0.863,0.863,0.863);
+    glBegin(GL_POLYGON);
+    glVertex2f(0,0);
+    glVertex2f(0,100);
+    glVertex2f(1100,100);
+    glVertex2f(1100,0);
+    glEnd();
+
+    //table with soundbox
+    int p=0;
+    for(int u=0;u<4;u++)
+    {
+    glColor3f(1.0,0.0,0.0);
+    glBegin(GL_POLYGON);
+    glVertex2f(50,80+p);
+    glVertex2f(50,150+p);
+    glVertex2f(200,150+p);
+    glVertex2f(200,80+p);
+    glEnd();
+    glBegin(GL_LINES);
+    glColor3f(1,1,1);
+    glVertex2f(50,150);
+    glVertex2f(200,150);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glColor3f(1,1,1);
+    glVertex2f(50,220);
+    glVertex2f(200,220);
+    glEnd();
+
+    glBegin(GL_LINES);
+    glColor3f(1,1,1);
+    glVertex2f(50,290);
+    glVertex2f(200,290);
+    glEnd();
+    glBegin(GL_LINES);
+    glColor3f(1,1,1);
+    glVertex2f(50,360);
+    glVertex2f(200,360);
+    glEnd();
+   // glColor3f(0.0,0.0,0.0);
+    for(int l=0;l<=5;l++)
+    {glColor3f(1.0,1.0,1.0);
+    draw_circle(125,115+p,l);
+    }
+    p=p+70;
+    }
+
+    //soundbxo
+    int c=0;
+  for(int i=0;i<2;i++)
+  {
+    glBegin(GL_POLYGON);
+    glColor3f(0.545,0.271,0.075);
+    glVertex2f(70+c,360);
+    glVertex2f(70+c,430);
+    glVertex2f(110+c,430);
+    glVertex2f(110+c,360);
+   // c=c+70;
+    glEnd();
+
+    c=c+70;
+    }
+
+  for(int l=0;l<=8;l++)
+    {
+    glColor3f(0.0,0.0,0.0);
+    draw_circle(90,375,l);
+    }
+
+      for(int l=0;l<=5;l++)
+    {
+    glColor3f(0.0,0.0,0.0);
+    draw_circle(90,400,l);
+    }
+
+
+     for(int l=0;l<=8;l++)
+    {
+    glColor3f(0.0,0.0,0.0);
+    draw_circle(160,375,l);
+    }
+
+      for(int l=0;l<=5;l++)
+    {
+    glColor3f(0.0,0.0,0.0);
+    draw_circle(160,400,l);
+    }
+
+    //table
+     glBegin(GL_POLYGON);
+    glColor3f(0.804,0.522,0.247);
+    glVertex2f(230,360);
+    glVertex2f(600,360);
+    glVertex2f(600,320);
+    glVertex2f(230,320);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.545,0.271,0.075);
+    glVertex2f(250,320);
+    glVertex2f(350,320);
+    glVertex2f(350,80);
+    glVertex2f(250,80);
+    glEnd();
+
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.545,0.271,0.075);
+    glVertex2f(480,80);
+    glVertex2f(480,320);
+    glVertex2f(580,320);
+    glVertex2f(580,80);
+    glEnd();
+     int l=0;
+     for(int i=0;i<3;i++)
+     {
+    glBegin(GL_POLYGON);
+    glColor3f(0.804,0.522,0.247);
+    glVertex2f(270,100+l);
+    glVertex2f(270,140+l);
+    glVertex2f(330,140+l);
+    glVertex2f(330,100+l);
+    l=l+70;
+    glEnd();
+     }
+    int l1=0;
+     for(int j=0;j<3;j++)
+     {
+    glBegin(GL_POLYGON);
+    glColor3f(0.804,0.522,0.247);
+    glVertex2f(500,100+l1);
+    glVertex2f(500,140+l1);
+    glVertex2f(560,140+l1);
+    glVertex2f(560,100+l1);
+    l1=l1+70;
+    glEnd();
+}
+//tvv
+    glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,0.0);
+    glVertex2f(270,400);
+    glVertex2f(270,600);
+    glVertex2f(560,600);
+    glVertex2f(560,400);
+    glEnd();
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,0.0);
+    glVertex2f(400,400);
+    glVertex2f(420,400);
+    glVertex2f(420,360);
+    glVertex2f(400,360);
+    glEnd();
+ //glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.0,1.5,1.5);
+    glRasterPos3f(330,530,0);
+    char h[]="MERRY CHRISTMAS";
+    for(int i=0;i<strlen(h);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h[i]);
+    }
+    glRasterPos3f(390,440,0);
+    char h1[]="2023";
+    for(int i=0;i<strlen(h1);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h1[i]);
+    }
+    glRasterPos3f(390,500,0);
+    char h2[]="AND";
+    for(int i=0;i<strlen(h2);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h2[i]);
+    }
+    glRasterPos3f(330,470,0);
+    char h3[]="HAPPY NEW YEAR";
+    for(int i=0;i<strlen(h3);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h3[i]);
+    }
+//chrismas tree
+
+
+    glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,0.0);
+    glVertex2f(850,80);
+    glVertex2f(880,180);
+    glVertex2f(720,180);
+    glVertex2f(750,80);
+    glEnd();
+
+     glBegin(GL_POLYGON);
+    glColor3f(0.0,0.0,0.0);
+    glVertex2f(790,150);
+    glVertex2f(790,250);
+    glVertex2f(810,250);
+    glVertex2f(810,150);
+    glEnd();
+int l2=0;
+for(int i=0;i<8;i++)
+{
+    glColor3f(0.0,0.392,0.0);
+    glBegin(GL_TRIANGLES);
+    glVertex2f(700,200+l2);
+    glVertex2f(800,300+l2);
+    glVertex2f(900,200+l2);
+    l2=l2+50;
+    glEnd();
+
+}
+//lightings on the tree
+   for(int l=0;l<=10;l++)
+    {
+    glColor3f(1.0,0.843,0.0);
+    draw_circle(800,280,l);
+    }
+    for(int l=0;l<=10;l++)
+    {
+    glColor3f(1.0,0.271,0.0);
+    draw_circle(850,400,l);
+    }
+     for(int l=0;l<=10;l++)
+    {
+    glColor3f(0.0,1.0,1.0);
+    draw_circle(750,300,l);
+    }
+     for(int l=0;l<=10;l++)
+    {
+    glColor3f(0.957,0.643,0.376);
+    draw_circle(830,600,l);
+    }
+     for(int l=0;l<=10;l++)
+    {
+    glColor3f(0.941,0.502,0.502);
+    draw_circle(750,550,l);
+    }
+      for(int l=0;l<=10;l++)
+    {
+    glColor3f(0.941,0.502,0.502);
+    draw_circle(900,280,l);
+    }
+
+
+
+int lk=0;
+for(int j=0;j<4;j++)
+{
+
+      for(int l=0;l<=10;l++)
+    {
+    glColor3f(1,1,0);
+    draw_circle(900,180+lk,l);
+    }
+      for(int l=0;l<=10;l++)
+    {
+    glColor3f(1.0,0.271,0.0);
+    draw_circle(700,180+lk,l);
+    }
+    lk=lk+100;
+}
+int hh=0;
+ for(int h=0;h<8;h++)
+    {glColor3f(0,0,0);
+    glBegin(GL_LINES);
+    glColor3f(0,0,0);
+    glVertex2f(700,200+hh);
+    glVertex2f(700,190+hh);
+    glVertex2f(900,200+hh);
+    glVertex2f(900,190+hh);
+    glEnd();
+    hh=hh+50;
+}
+
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(785,420);
+glVertex2f(800,440);
+glVertex2f(815,420);
+glEnd();
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(785,435);
+glVertex2f(800,415);
+glVertex2f(815,435);
+glEnd();
+
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(768,520);
+glVertex2f(780,540);
+glVertex2f(795,520);
+glEnd();
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(765,535);
+glVertex2f(780,515);
+glVertex2f(795,535);
+glEnd();
+
+
+int tf=0;
+for( int t=0;t<4;t++)
+{
+glColor3f(1.0,0.843,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(685,220+tf);
+glVertex2f(700,240+tf);
+glVertex2f(715,220+tf);
+glEnd();
+glColor3f(1.0,0.843,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(685,235+tf);
+glVertex2f(700,215+tf);
+glVertex2f(715,235+tf);
+glEnd();
+
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(885,220+tf);
+glVertex2f(900,240+tf);
+glVertex2f(915,220+tf);
+glEnd();
+glColor3f(1.0,0.549,0.0);
+glBegin(GL_TRIANGLES);
+glVertex2f(885,235+tf);
+glVertex2f(900,215+tf);
+glVertex2f(915,235+tf);
+glEnd();
+tf=tf+100;
+}
+man(680,-190);
+     gifts2(-140,0);
+     gifts2(0,0);
+     gifts2(130,0);
+     gifts2(-120,100);
+  glFlush();
+}
+//......................end of diwali.................................
+void descdisplay()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.545,0.0,0.0);
+    glRasterPos3f(450,640,0);
+    char name1[]="INDIAN FESTIVALS SIMULATION";
+    for(int i=0;i<strlen(name1);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,name1[i]);
+    }
+    glColor3f(0.0,0.5,0.5);
+    glRasterPos3f(250,540,0);
+    char h[]="India is a land of festivals,where people from different regions coexist harmonily.The wide variety of festivals ";
+    for(int i=0;i<strlen(h);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h[i]);
+    }
+    glRasterPos3f(250,520,0);
+    char h1[]="celebrated in India is true  manifestation of its rich culture and traditions.So here we decided to simulate some ";
+    for(int i=0;i<strlen(h1);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h1[i]);
+    }
+    glRasterPos3f(250,500,0);
+    char h2[]="joyful festivals of India which upholds its Culture.";
+    for(int i=0;i<strlen(h2);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h2[i]);
+    }
+     glColor3f(0.804,0.361,0.361);
+    glRasterPos3f(550,460,0);
+    char h3[]="1.UGADI:";
+    for(int i=0;i<strlen(h3);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h3[i]);
+    }
+     glColor3f(0.0,0.5,0.5);
+    glRasterPos3f(250,440,0);
+    char h4[]="Yugadi is the New Year's Day according to Hindu Calender.This celebration includes visiting templesand feast ";
+    for(int i=0;i<strlen(h4);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h4[i]);
+    }
+    glRasterPos3f(250,420,0);
+    char a1[]="of holige and Bevu bella.";
+    for(int i=0;i<strlen(a1);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,a1[i]);//
+    }
+     glColor3f(0.804,0.361,0.361);
+glRasterPos3f(550,380,0);
+    char h11[]="2.Diwali:";
+    for(int i=0;i<strlen(h11);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h11[i]);
+    }
+     glColor3f(0.0,0.5,0.5);
+    glRasterPos3f(250,360,0);
+    char h5[]="Deepavali is a festival of lights.It symbolizes the victory of light over darkness,good over evil,and knowledge over";
+    for(int i=0;i<strlen(h5);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h5[i]);
+    }
+    glRasterPos3f(250,340,0);
+    char a2[]="ignorance.celebration Include Diya lighting, puja, home decoration, fireworks, fasting, gifts, feast and sweets.";
+    for(int i=0;i<strlen(a2);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,a2[i]);
+    }
+     glColor3f(0.804,0.361,0.361);
+    glRasterPos3f(550,300,0);
+    char h6[]="3.Christmas:";
+    for(int i=0;i<strlen(h6);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h6[i]);
+    }
+     glColor3f(0.0,0.5,0.5);
+     glRasterPos3f(250,280,0);
+    char h25[]="Christmas is an annual festival commemorating the birth of Jesus Christ,celebrated on December 25Celebration include ";
+    for(int i=0;i<strlen(h25);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h25[i]);
+    }
+
+     glColor3f(0.0,0.5,0.5);
+    glRasterPos3f(250,260,0);
+    char h8[]="gift-givinhand other social gathering,symbolic decoration,feasting etc ";
+    for(int i=0;i<strlen(h8);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,h8[i]);
+    }
+
+    glColor3f(0.0,0.0,0.0);
+    glRasterPos3f(900,50,0);
+    char sub4[]="Press f to  celebrate festivals ";
+    for(int i=0;i<strlen(sub4);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,sub4[i]);
+    }
+    glColor3f(0.0,0.0,0.0);
+    glRasterPos3f(25,50,0);
+    char sub5[]="Press k to go to previous page";
+    for(int i=0;i<strlen(sub5);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,sub5[i]);
+    }
+
+
+
+glutSwapBuffers();
+
+}
+
+void disp()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.545,0.0,0.0);
+        glRasterPos3f(450,600,0);
+    char name[]="INDIAN FESTIVALS SIMULATION";
+    for(int i=0;i<strlen(name);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24,name[i]);
+    }
+    glColor3f(0.804,0.361,0.361);
+     glRasterPos3f(550,500,0);
+    char u[]="By:";
+    for(int i=0;i<strlen(u);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,u[i]);
+    }
+
+    glColor3f(0.0,0.5,0.5);
+     glRasterPos3f(500,460,0);
+    char usn1[]="4AI19CS054 KAVYA B.V";
+    for(int i=0;i<strlen(usn1);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,usn1[i]);
+    }
+    glColor3f(0.0,0.5,0.5);
+     glRasterPos3f(500,440,0);
+
+     glColor3f(0.804,0.361,0.361);
+     glRasterPos3f(520,320,0);
+    char sub1[]="UNDER THE GUIDANCE OF:";
+    for(int i=0;i<strlen(sub1);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,sub1[i]);
+    }
+    glColor3f(0.0,0.5,0.5);
+    glRasterPos3f(500,280,0);
+    char sub2[]="Prof Anser Pasha";
+    for(int i=0;i<strlen(sub2);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,sub2[i]);
+    }
+    glColor3f(0.0,0.5,0.5);
+    glRasterPos3f(500,260,0);
+    char sub3[]="BE,Mtech";
+    for(int i=0;i<strlen(sub3);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,sub3[i]);
+    }
+    glColor3f(0.0,0.5,0.5);
+    glRasterPos3f(500,240,0);
+    char sub9[]="Dept of CSE, Adhichunchanagiri institute of technology";
+    for(int i=0;i<strlen(sub9);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,sub9[i]);
+    }
+   glColor3f(0.0,0.0,0.0);
+    glRasterPos3f(900,50,0);
+    char sub4[]="Press n to go to next page";
+    for(int i=0;i<strlen(sub4);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,sub4[i]);
+    }
+    glutSwapBuffers();
+}
+
+void kavya()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.0,0.5,0.5);
+    glRasterPos3f(450,600,0);
+    char k[]="press";
+    for(int i=0;i<strlen(k);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,k[i]);
+    }
+
+     glColor3f(0.0,0.5,0.5);
+     glRasterPos3f(550,500,0);
+    char s[]="v-village , f-ugadi ,a-santa ,c christmas";
+    for(int i=0;i<strlen(s);i++)
+    {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,s[i]);
+    }
+
+     glColor3f(0.804,0.361,0.361);
+     glRasterPos3f(520,320,0);
+    char sub21[]="g-description   ,d-deepa  ,t-tree  ,o-opendoor";
+    for(int i=0;i<strlen(sub21);i++)
+    {
+
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18,sub21[i]);
+    }
+}
+void mykey(unsigned char key,int x,int y)
+{
+    if(key=='n')
+    {
+       glutDisplayFunc(descdisplay);
+    }
+   glutPostRedisplay();
+   if(key=='f')
+    {
+       glutDisplayFunc(display);
+    }
+   glutPostRedisplay();
+
+
+    if(key=='k')
+    {
+       glutDisplayFunc(disp);
+    }
+   glutPostRedisplay();
+
+   if(key=='v')
+   {
+         glutDisplayFunc(diwali);
+   }
+     glutPostRedisplay();
+     if(key=='d')
+   {
+         glutDisplayFunc(diya);
+   }
+     glutPostRedisplay();
+     if(key=='l')
+   {
+         glutDisplayFunc(lighting);
+   }
+     glutPostRedisplay();
+     if(key=='p')
+   {
+         glutDisplayFunc(pataki);
+   }
+     glutPostRedisplay();
+     if(key=='n')
+    {
+       glutDisplayFunc(descdisplay);
+    }
+    glutPostRedisplay();
+
+    if(key=='t')
+    {
+       glutDisplayFunc(tree1);
+
+    }
+    glutPostRedisplay();
+    if(key=='g')
+    {
+       glutDisplayFunc(gifts);
+
+    }
+    glutPostRedisplay();
+     if(key=='o')
+    {
+       glutDisplayFunc(opndoor);
+
+    }
+    glutPostRedisplay();
+      if(key=='c')
+    {
+       glutDisplayFunc(chrismastree);
+    }
+   glutPostRedisplay();
+
+     if(key=='a')
+    {
+       glutDisplayFunc(chrismas);
+
+    }
+    glutPostRedisplay();
+    if(key=='Z')
+    {
+        glutDisplayFunc(kavya);
+    }
+
+}
+void specialkey(int key,int x,int y)
+{
+    switch(key){
+case GLUT_KEY_UP:
+        yr=yr+20;
+    printf("%d",y);
+    glutPostRedisplay();
+
+    break;
+case GLUT_KEY_DOWN:
+    yr=yr-20;
+    printf("%d",y);
+    glutPostRedisplay();
+    break;
+case GLUT_KEY_LEFT:
+    xr=xr-20;
+    printf("%d",x);
+    glutPostRedisplay();
+    break;
+        break;
+case GLUT_KEY_RIGHT:
+    xr=xr+20;
+    printf("%d",x);
+    glutPostRedisplay();
+    break;
+
+    }
+}
+int main(int argc,char** argv)
+{
+
+	glutInit(&argc,argv);
+	glutInitDisplayMode(GLUT_SINGLE|GLUT_RGB);
+	glutInitWindowSize(1100.0,700.0);
+	glutInitWindowPosition(0,0);
+	glutCreateWindow("Simple Village");
+	glutDisplayFunc(disp);
+	glutDisplayFunc(kavya);
+	//glutIdleFunc(disp);
+	glutKeyboardFunc(mykey);
+	glutSpecialFunc(specialkey);//keyboard callback funct
+	myinit();
+	glutMainLoop();
+	return 0;
+}
